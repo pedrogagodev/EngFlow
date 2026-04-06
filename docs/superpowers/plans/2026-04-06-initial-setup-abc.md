@@ -16,30 +16,32 @@
 
 ## File map (criar / alterar)
 
-| Caminho | Responsabilidade |
-|---------|------------------|
-| `package.json` (raiz) | `workspaces`, scripts `test` / `check`, `devDependencies` |
-| `tsconfig.json` (raiz) | `include` para `packages/*/src/**/*.ts` (ajuste mínimo) |
-| `packages/contracts/package.json` | Pacote `@engflow/contracts`, dependência `zod` |
-| `packages/contracts/src/schemas.ts` | Schemas Zod + tipos exportados + `parseNormalizedPromptEvent` |
-| `packages/contracts/src/schemas.test.ts` | Testes de contrato |
-| `packages/daemon/package.json` | Pacote `@engflow/daemon`, dependência `workspace:*` dos contratos |
-| `packages/daemon/src/ndjson-socket.ts` | Servidor UNIX socket NDJSON + API `start` / `close` |
-| `packages/daemon/src/ndjson-socket.test.ts` | Testes de integração locais |
-| `index.ts` (raiz) | Remover ou esvaziar — entrada futura será `packages/daemon` (este plano não adiciona CLI) |
+
+| Caminho                                     | Responsabilidade                                                                          |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `package.json` (raiz)                       | `workspaces`, scripts `test` / `check`, `devDependencies`                                 |
+| `tsconfig.json` (raiz)                      | `include` para `packages/*/src/**/*.ts` (ajuste mínimo)                                   |
+| `packages/contracts/package.json`           | Pacote `@engflow/contracts`, dependência `zod`                                            |
+| `packages/contracts/src/schemas.ts`         | Schemas Zod + tipos exportados + `parseNormalizedPromptEvent`                             |
+| `packages/contracts/src/schemas.test.ts`    | Testes de contrato                                                                        |
+| `packages/daemon/package.json`              | Pacote `@engflow/daemon`, dependência `workspace:`* dos contratos                         |
+| `packages/daemon/src/ndjson-socket.ts`      | Servidor UNIX socket NDJSON + API `start` / `close`                                       |
+| `packages/daemon/src/ndjson-socket.test.ts` | Testes de integração locais                                                               |
+| `index.ts` (raiz)                           | Remover ou esvaziar — entrada futura será `packages/daemon` (este plano não adiciona CLI) |
+
 
 ---
 
 ### Task 1: Phase A — Workspaces, scripts, TypeScript check
 
 **Files:**
+
 - Modify: `/home/pedro/Projetos/EngFlow/package.json`
 - Modify: `/home/pedro/Projetos/EngFlow/tsconfig.json`
 - Create: `/home/pedro/Projetos/EngFlow/packages/contracts/package.json`
 - Create: `/home/pedro/Projetos/EngFlow/packages/daemon/package.json`
 - Delete or modify: `/home/pedro/Projetos/EngFlow/index.ts`
-
-- [ ] **Step 1: Replace root `package.json` with workspace-enabled config**
+- **Step 1: Replace root `package.json` with workspace-enabled config**
 
 Substituir o conteúdo de `package.json` por:
 
@@ -60,7 +62,7 @@ Substituir o conteúdo de `package.json` por:
 }
 ```
 
-- [ ] **Step 2: Point TypeScript at workspace packages**
+- **Step 2: Point TypeScript at workspace packages**
 
 Substituir `tsconfig.json` **completo** por (mantém `strict`; adiciona `include`):
 
@@ -90,7 +92,7 @@ Substituir `tsconfig.json` **completo** por (mantém `strict`; adiciona `include
 }
 ```
 
-- [ ] **Step 3: Create placeholder workspace packages so `bun install` resolves**
+- **Step 3: Create placeholder workspace packages so `bun install` resolves**
 
 `packages/contracts/package.json`:
 
@@ -123,11 +125,11 @@ Substituir `tsconfig.json` **completo** por (mantém `strict`; adiciona `include
 }
 ```
 
-- [ ] **Step 4: Remove root `index.ts`**
+- **Step 4: Remove root `index.ts`**
 
 Apagar `/home/pedro/Projetos/EngFlow/index.ts` (evita confundir entry com pacotes).
 
-- [ ] **Step 5: Install and verify workspaces**
+- **Step 5: Install and verify workspaces**
 
 Run:
 
@@ -137,7 +139,7 @@ cd /home/pedro/Projetos/EngFlow && bun install
 
 Expected: `bun install` completes; `node_modules` links `@engflow/contracts` and `@engflow/daemon`. **Não corras `tsc` ainda** — com `include` vazio o TypeScript pode falhar; o primeiro `bun run check` completo fica no fim da Task 2 (depois de existir `packages/contracts/src/*.ts`).
 
-- [ ] **Step 6: Commit**
+- **Step 6: Commit**
 
 ```bash
 cd /home/pedro/Projetos/EngFlow
@@ -151,11 +153,11 @@ git commit -m "chore: add bun workspaces for contracts and daemon packages"
 ### Task 2: Phase B — Zod contracts + tests (TDD)
 
 **Files:**
+
 - Modify: `/home/pedro/Projetos/EngFlow/packages/contracts/package.json`
 - Create: `/home/pedro/Projetos/EngFlow/packages/contracts/src/schemas.ts`
 - Create: `/home/pedro/Projetos/EngFlow/packages/contracts/src/schemas.test.ts`
-
-- [ ] **Step 1: Add Zod dependency**
+- **Step 1: Add Zod dependency**
 
 Em `packages/contracts/package.json`, adicionar:
 
@@ -171,7 +173,7 @@ Run:
 cd /home/pedro/Projetos/EngFlow && bun install
 ```
 
-- [ ] **Step 2: Write failing tests first**
+- **Step 2: Write failing tests first**
 
 Criar `packages/contracts/src/schemas.test.ts`:
 
@@ -252,7 +254,7 @@ cd /home/pedro/Projetos/EngFlow && bun test packages/contracts/src/schemas.test.
 
 Expected: **FAIL** — cannot find `./schemas.ts` or import errors.
 
-- [ ] **Step 3: Implement `schemas.ts` to pass tests**
+- **Step 3: Implement `schemas.ts` to pass tests**
 
 Criar `packages/contracts/src/schemas.ts`:
 
@@ -313,7 +315,7 @@ cd /home/pedro/Projetos/EngFlow && bun test packages/contracts/src/schemas.test.
 
 Expected: **PASS**
 
-- [ ] **Step 4: Full test + typecheck**
+- **Step 4: Full test + typecheck**
 
 ```bash
 cd /home/pedro/Projetos/EngFlow && bun test && bun run check
@@ -321,7 +323,7 @@ cd /home/pedro/Projetos/EngFlow && bun test && bun run check
 
 Expected: all tests pass; `tsc` exits 0.
 
-- [ ] **Step 5: Commit**
+- **Step 5: Commit**
 
 ```bash
 git add packages/contracts/
@@ -333,15 +335,16 @@ git commit -m "feat(contracts): add PRD-aligned Zod schemas and tests"
 ### Task 3: Phase C — NDJSON UNIX socket daemon + tests (TDD)
 
 **Files:**
+
 - Create: `/home/pedro/Projetos/EngFlow/packages/daemon/src/ndjson-socket.ts`
 - Create: `/home/pedro/Projetos/EngFlow/packages/daemon/src/ndjson-socket.test.ts`
 
 **Behavior:**
+
 - `startNdjsonSocketServer({ socketPath, onValid, onInvalid })` cria `createServer` UNIX, escuta `socketPath`.
 - Cada conexão: acumular buffer, split por `\n`, para cada linha não vazia: `JSON.parse` → se throw chama `onInvalid(error, line)`; senão `parseNormalizedPromptEvent` → failure chama `onInvalid(zodError, line)`; success chama `onValid(data)`.
 - Retorno: `{ server, listen(): Promise<void>, close(): Promise<void> }` onde `close` remove o socket path com `fs.unlink` em erro ignorado após `server.close`.
-
-- [ ] **Step 1: Write failing integration test**
+- **Step 1: Write failing integration test**
 
 Criar `packages/daemon/src/ndjson-socket.test.ts`:
 
@@ -456,7 +459,7 @@ cd /home/pedro/Projetos/EngFlow && bun test packages/daemon/src/ndjson-socket.te
 
 Expected: **FAIL** — module missing or exports wrong.
 
-- [ ] **Step 2: Implement `ndjson-socket.ts`**
+- **Step 2: Implement `ndjson-socket.ts`**
 
 Criar `packages/daemon/src/ndjson-socket.ts`:
 
@@ -534,7 +537,7 @@ cd /home/pedro/Projetos/EngFlow && bun test packages/daemon/src/ndjson-socket.te
 
 Expected: **PASS**
 
-- [ ] **Step 3: Run full suite + check**
+- **Step 3: Run full suite + check**
 
 ```bash
 cd /home/pedro/Projetos/EngFlow && bun test && bun run check
@@ -542,7 +545,7 @@ cd /home/pedro/Projetos/EngFlow && bun test && bun run check
 
 Expected: all green.
 
-- [ ] **Step 4: Commit**
+- **Step 4: Commit**
 
 ```bash
 git add packages/daemon/
@@ -553,14 +556,16 @@ git commit -m "feat(daemon): add NDJSON unix socket server with validation"
 
 ## Self-review (spec coverage)
 
-| PRD / requisito | Task |
-|-----------------|------|
-| TypeScript + Bun | Task 1 |
-| Zod validation | Task 2 |
-| Contratos `NormalizedPromptEvent`, `PromptFeedback`, `WidgetFeedbackEvent` | Task 2 |
-| UNIX socket IPC | Task 3 |
-| JSON simples (NDJSON), não JSON-RPC | Task 3 |
-| Eventos inválidos não derrubam o daemon | Task 3 test + try/catch por linha |
+
+| PRD / requisito                                                            | Task                              |
+| -------------------------------------------------------------------------- | --------------------------------- |
+| TypeScript + Bun                                                           | Task 1                            |
+| Zod validation                                                             | Task 2                            |
+| Contratos `NormalizedPromptEvent`, `PromptFeedback`, `WidgetFeedbackEvent` | Task 2                            |
+| UNIX socket IPC                                                            | Task 3                            |
+| JSON simples (NDJSON), não JSON-RPC                                        | Task 3                            |
+| Eventos inválidos não derrubam o daemon                                    | Task 3 test + try/catch por linha |
+
 
 **Gaps intencionais (fora de A+B+C):** OpenCode adapter, `CorrectionEngine`, Quickshell, CLI `status`/`diagnostics`, emissão real de `WidgetFeedbackEvent` — ficam para planos seguintes.
 
