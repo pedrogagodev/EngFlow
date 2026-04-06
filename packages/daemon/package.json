@@ -11,6 +11,7 @@
     ".": "./src/ndjson-socket.ts"
   },
   "dependencies": {
-    "@engflow/contracts": "workspace:*"
+    "@engflow/contracts": "workspace:*",
+    "@engflow/correction": "workspace:*"
   }
 }
