@@ -2,23 +2,34 @@
 
 **Fonte de verdade:** `engflow-prd-v1-v2.md` (escopo V1/V2 e decisões de arquitetura).
 
-**Objetivo deste documento:** definir o que compõe o *setup inicial* do repositório e da toolchain — o mínimo necessário para começar a implementar o loop V1 (adapter → daemon → correção → widget) sem antecipar V2 (histórico, SQLite, OpenTUI).
+**Objetivo deste documento:** servir de mapa desde o *bootstrap* do repo até o loop V1 descrito no PRD. **Importante:** “setup inicial” em sentido estrito **não** é a V1 inteira — ver secção 1.1.
+
+### 1.1 Setup inicial vs implementação V1
+
+| | **Setup inicial (estrito)** | **Resto da V1 (PRD)** |
+|---|-----------------------------|------------------------|
+| **O quê** | Toolchain, estrutura do repo, contratos Zod, opcionalmente um daemon/socket mínimo que valida JSON e não faz produto ainda. | Daemon completo, `CorrectionEngine` + OpenAI, adapter OpenCode, widget Quickshell com UX do PRD, CLI `status`/`diagnostics`, testes de fronteira. |
+| **Fases neste plano** | **A** e **B**; **C** só como stub (“socket aceita evento válido e loga”) se quiseres fechar o bootstrap num único PR. | **C** a **G** como trabalho de produto, não de “só configurar o projeto”. |
+| **Critério** | Outra pessoa clona o repo, corre `bun install` / `bun test`, vê pastas e contratos alinhados ao PRD. | O loop *prompt → evento → correção → widget* funciona de ponta a ponta no teu ambiente. |
+
+O documento original listava A–G sob o título “setup inicial”; na prática **A–G juntos cobrem a maior parte da entrega V1**, não apenas o primeiro dia de projeto. Usa **A–B** (e no máximo **C** leve) como definição de *setup inicial*; trata **D–G** como milestones da implementação V1.
 
 ---
 
-## 1. Escopo do setup inicial
+## 1. Escopo: o que é “setup inicial” e o que é V1
 
-### Dentro do escopo
+### Setup inicial (estrito) — alvo depois do `bun init`
 
-- Repositório **TypeScript** com runtime **Bun** e estrutura de pastas que separe claramente: contratos, daemon, engine de correção, adapter OpenCode, apresentação Quickshell.
-- **Contratos internos** versionados no código, validados com **Zod** (`NormalizedPromptEvent`, `PromptFeedback`, `WidgetFeedbackEvent` — campos conforme PRD).
-- **Daemon** esqueleto: escuta em **Unix domain socket**, aceita JSON linha a linha ou mensagens delimitadas (definir no primeiro PR técnico), valida entrada, rejeita inválidos sem derrubar o processo.
-- **CorrectionEngine** como interface; primeira implementação **OpenAI** atrás da interface (pode retornar stub até a prompt estiver fechada).
-- **CLI mínima** (`status`, `diagnostics` ou equivalente) para operar e depurar o daemon localmente.
-- **Widget Quickshell** como projeto ou subpasta separada do pacote TS, integrada ao desktop alvo (Arch + Hyprland).
-- **Testes** focados em contratos e fronteiras (adapter → evento normalizado; eventos inválidos; saída da engine; geração do payload do widget), usando o runner do Bun.
+- **TypeScript + Bun** configurados (strict onde fizer sentido), scripts `test` / `check`.
+- **Estrutura de pastas** que reserve lugar a contratos, daemon, correction, adapter, widget (mesmo que pastas vazias ou um único pacote com `src/` bem partido).
+- **Contratos Zod** para `NormalizedPromptEvent`, `PromptFeedback`, `WidgetFeedbackEvent` conforme PRD, com testes de serialização.
+- Opcional neste marco: **socket UNIX mínimo** que lê JSON, valida com Zod, rejeita lixo sem crash (pipeline interno ainda pode ser no-op).
 
-### Fora do escopo (neste setup)
+### Resto da V1 (PRD) — não confundir com “só setup”
+
+Isto são milestones de produto (**fases C–G**): daemon completo, `CorrectionEngine` + OpenAI, adapter OpenCode, widget Quickshell com UX (estados, pin, dismiss), CLI operacional, testes de fronteira listados no PRD. É o trabalho que entrega o loop real; ocupa semanas, não uma tarde de bootstrap.
+
+### Fora de escopo (V1/V2 conforme PRD)
 
 - Persistência / SQLite / histórico (V2).
 - Adapter Zed ou Cursor.
@@ -46,7 +57,7 @@ Se preferir monorepo mais simples no início: um único pacote `packages/core` c
 
 ---
 
-## 3. Fases e entregáveis
+## 3. Fases e entregáveis (A–G = roadmap V1; A–B = setup inicial estrito)
 
 | Fase | Entregável | Critério de pronto |
 |------|------------|-------------------|
@@ -80,9 +91,9 @@ Ordem recomendada: **A → B → C → D** em paralelo com pesquisa leve em **E*
 
 ---
 
-## 6. Próximo passo após este setup
+## 6. Próximo passo após o setup inicial (A–B)
 
-Implementar o loop completo V1 conforme user stories do PRD; preparar V2 apenas com interfaces que não impeçam acrescentar storage depois (ex. injeção de “sink” nulo em V1).
+Fechar contratos e estrutura, depois seguir as fases **C–G** como implementação da V1 (não como “setup”). Preparar V2 só ao nível de interfaces (ex. nenhum storage obrigatório em V1).
 
 ---
 
