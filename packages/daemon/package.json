@@ -1,0 +1,12 @@
+{
+  "name": "@engflow/daemon",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/ndjson-socket.ts"
+  },
+  "dependencies": {
+    "@engflow/contracts": "workspace:*"
+  }
+}

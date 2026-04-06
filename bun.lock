@@ -6,13 +6,26 @@
       "name": "engflow",
       "devDependencies": {
         "@types/bun": "latest",
+        "typescript": "^5.7.0",
       },
-      "peerDependencies": {
-        "typescript": "^5",
+    },
+    "packages/contracts": {
+      "name": "@engflow/contracts",
+      "version": "0.0.0",
+    },
+    "packages/daemon": {
+      "name": "@engflow/daemon",
+      "version": "0.0.0",
+      "dependencies": {
+        "@engflow/contracts": "workspace:*",
       },
     },
   },
   "packages": {
+    "@engflow/contracts": ["@engflow/contracts@workspace:packages/contracts"],
+
+    "@engflow/daemon": ["@engflow/daemon@workspace:packages/daemon"],
+
     "@types/bun": ["@types/bun@1.3.11", "", { "dependencies": { "bun-types": "1.3.11" } }, "sha512-5vPne5QvtpjGpsGYXiFyycfpDF2ECyPcTSsFBMa0fraoxiQyMJ3SmuQIGhzPg2WJuWxVBoxWJ2kClYTcw/4fAg=="],
 
     "@types/node": ["@types/node@25.5.2", "", { "dependencies": { "undici-types": "~7.18.0" } }, "sha512-tO4ZIRKNC+MDWV4qKVZe3Ql/woTnmHDr5JD8UI5hn2pwBrHEwOEMZK7WlNb5RKB6EoJ02gwmQS9OrjuFnZYdpg=="],
