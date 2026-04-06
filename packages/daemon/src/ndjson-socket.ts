@@ -1,3 +1,4 @@
+import { EventEmitter } from "node:events";
 import { createServer, type Socket } from "node:net";
 import { unlink } from "node:fs/promises";
 import type { NormalizedPromptEvent } from "@engflow/contracts";
@@ -43,9 +44,10 @@ export function startNdjsonSocketServer(options: {
 
   const listen = () =>
     new Promise<void>((resolve, reject) => {
-      server.once("error", reject);
+      const emitter = server as unknown as EventEmitter;
+      emitter.once("error", reject);
       server.listen(options.socketPath, () => {
-        server.off("error", reject);
+        emitter.off("error", reject);
         resolve();
       });
     });
