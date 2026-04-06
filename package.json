@@ -5,7 +5,9 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "test": "bun test",
-    "check": "bun test && bunx tsc --noEmit -p tsconfig.json"
+    "check": "bun test && bunx tsc --noEmit -p tsconfig.json",
+    "daemon": "bun run --cwd packages/daemon start",
+    "daemon:dev": "bun run --cwd packages/daemon dev"
   },
   "devDependencies": {
     "@types/bun": "latest",
