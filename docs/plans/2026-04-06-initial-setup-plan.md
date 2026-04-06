@@ -62,18 +62,34 @@ Se preferir monorepo mais simples no início: um único pacote `packages/core` c
 ## 3. Fases e entregáveis (A–G = roadmap V1; A–B = setup inicial estrito)
 
 
-| Fase                      | Entregável                                                                            | Critério de pronto                                                                            |
-| ------------------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **A — Toolchain**         | `package.json`, Bun, TS strict, scripts `dev`/`test`/`check`                          | `bun test` roda (mesmo que smoke).                                                            |
-| **B — Contratos**         | Schemas Zod + tipos inferidos, export único para daemon/adapter/widget                | Serialização/deserialização redonda nos três contratos do PRD.                                |
-| **C — Daemon + socket**   | Servidor UNIX socket, parse JSON, validação, log estruturado de rejeições             | Evento inválido não crasha; evento válido dispara pipeline (stub).                            |
-| **D — CorrectionEngine**  | Interface + implementação OpenAI (env `OPENAI_API_KEY`), fallback seguro em falha     | Retorno validado como `PromptFeedback`; falha → caminho para cartão neutro (contrato widget). |
-| **E — Adapter OpenCode**  | Documentar origem dos eventos OpenCode; normalizar para `NormalizedPromptEvent`       | Testes com payloads de exemplo; sem vazar detalhes do OpenCode no daemon.                     |
-| **F — Widget Quickshell** | Card com hierarquia do PRD (estado → texto → tip → categoria), pin/dismiss, auto-open | Estados Correct / Small issue / Strong issue + fallback neutro.                               |
-| **G — CLI**               | Comandos mínimos de operação                                                          | `status` mostra se o socket/daemon está utilizável; `diagnostics` útil para suporte local.    |
+| Fase                      | Entregável                                                                                                                                                 | Critério de pronto                                                                            |
+| ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **A — Toolchain**         | `package.json`, Bun, TS strict, scripts `dev`/`test`/`check`                                                                                               | `bun test` roda (mesmo que smoke).                                                            |
+| **B — Contratos**         | Schemas Zod + tipos inferidos, export único para daemon/adapter/widget                                                                                     | Serialização/deserialização redonda nos três contratos do PRD.                                |
+| **C — Daemon + socket**   | Servidor UNIX socket, parse JSON, validação, log estruturado de rejeições                                                                                  | Evento inválido não crasha; evento válido dispara pipeline (stub).                            |
+| **D — CorrectionEngine**  | Interface + implementação OpenAI (env `OPENAI_API_KEY`), fallback seguro em falha                                                                          | Retorno validado como `PromptFeedback`; falha → caminho para cartão neutro (contrato widget). |
+| **E — Adapter OpenCode**  | Plugin que escuta `event` + filtra por `event.type`; mapear `message.part.updated` (texto user) para `NormalizedPromptEvent`; cliente NDJSON para o socket | Testes com fixtures do spike; daemon só vê contrato interno; ignorar reasoning/deltas/toasts. |
+| **F — Widget Quickshell** | Card com hierarquia do PRD (estado → texto → tip → categoria), pin/dismiss, auto-open                                                                      | Estados Correct / Small issue / Strong issue + fallback neutro.                               |
+| **G — CLI**               | Comandos mínimos de operação                                                                                                                               | `status` mostra se o socket/daemon está utilizável; `diagnostics` útil para suporte local.    |
 
 
 Ordem recomendada: **A → B → C → D** em paralelo com pesquisa leve em **E**; **F** assim que houver `WidgetFeedbackEvent` estável; **G** quando o daemon existir.
+
+### 3.1 Descoberta OpenCode (spike — validação em TUI)
+
+Spike com plugin `engflow-spike` (ver `spike/opencode-plugins/` e `docs/plans/2026-04-06-opencode-adapter-spike-design.md`). Conclusões para a fase **E**:
+
+
+| Tópico                              | Decisão                                                                                                                                                                                                                                                     |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Onde escutar**                    | Handler de plugin `**event`** (genérico). Na prática, os eventos úteis chegam com `arg.event.type`; as chaves nomeadas do objeto de retorno do plugin (ex. `"message.updated"`) não substituem este canal para descoberta fiável.                           |
+| **Sinal de “prompt do utilizador”** | `event.type === "message.part.updated"` com `properties.part.type === "text"` — o campo `**part.text`** contém o texto enviado (ex.: string de teste única).                                                                                                |
+| **Contexto**                        | O mesmo fluxo emite `message.updated`, `session.updated`, etc.; combinar `sessionID` / `messageID` com `directory` da sessão para `project_path` quando o trabalho for num repositório (em sessão “global” o `directory` pode ser só `~/.config/opencode`). |
+| **Ignorar**                         | `message.part.delta` (streaming); `message.part.updated` com `part.type === "reasoning"` (e conteúdo sensível/pesado); toasts (`tui.toast.show` via `event`); partes da resposta do assistente — o adapter deve restringir-se a **mensagem de utilizador**. |
+| **Versão**                          | Registar a versão do OpenCode em uso ao integrar (ex.: spike com **1.3.16**); a forma de eventos pode variar entre versões.                                                                                                                                 |
+
+
+**Nota:** o spike cobre **descoberta**, não o pacote `adapter-opencode` completo — esse pacote continua a ser o entregável da fase E com normalização + testes + envio NDJSON.
 
 ---
 
@@ -88,11 +104,11 @@ Ordem recomendada: **A → B → C → D** em paralelo com pesquisa leve em **E*
 ## 5. Risco e mitigação
 
 
-| Risco                                                | Mitigação                                                                    |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------- |
-| API do OpenCode para eventos ainda pouco documentada | Adapter isolado + testes com fixtures; daemon só vê `NormalizedPromptEvent`. |
-| Quickshell vs versão do sistema                      | Fixar na documentação a versão mínima testada no Arch.                       |
-| Escopo a derivar para SQLite “já que é fácil”        | Revisar este plano e o PRD antes de qualquer migration.                      |
+| Risco                                         | Mitigação                                                                                                                           |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| API do OpenCode a evoluir entre versões       | Spike fixou o padrão `event` + `message.part.updated` (texto user); fixtures por versão; fallback seguro se `part` vier incompleto. |
+| Quickshell vs versão do sistema               | Fixar na documentação a versão mínima testada no Arch.                                                                              |
+| Escopo a derivar para SQLite “já que é fácil” | Revisar este plano e o PRD antes de qualquer migration.                                                                             |
 
 
 ---
@@ -100,6 +116,8 @@ Ordem recomendada: **A → B → C → D** em paralelo com pesquisa leve em **E*
 ## 6. Próximo passo após o setup inicial (A–B)
 
 Fechar contratos e estrutura, depois seguir as fases **C–G** como implementação da V1 (não como “setup”). Preparar V2 só ao nível de interfaces (ex. nenhum storage obrigatório em V1).
+
+Com **A–C** e o spike OpenCode feitos, a fase **E** pode assentar na secção **3.1** (origem de eventos e filtros) em vez de explorar hooks à cega.
 
 ---
 
