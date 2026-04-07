@@ -1,9 +1,9 @@
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import type { NormalizedPromptEvent } from "@engflow/contracts";
+import { resolveSocketPath } from "@engflow/contracts/socket-path";
 import { createDefaultCorrectionEngine } from "@engflow/correction";
 import { logStructured } from "./log.ts";
-import { resolveSocketPath } from "./paths.ts";
 import { startNdjsonSocketServer } from "./ndjson-socket.ts";
 
 const correctionEngine = createDefaultCorrectionEngine();

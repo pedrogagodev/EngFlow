@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { resolveSocketPath } from "./paths.ts";
+import { resolveSocketPath } from "./socket-path.ts";
 
 describe("resolveSocketPath", () => {
   const savedEnv = { ...process.env };
