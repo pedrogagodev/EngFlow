@@ -1,0 +1,14 @@
+{
+  "name": "@engflow/adapter-opencode",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@engflow/contracts": "workspace:*"
+  },
+  "exports": {
+    ".": "./src/normalize.ts",
+    "./plugin": "./src/plugin.ts",
+    "./send-line": "./src/send-line.ts"
+  }
+}

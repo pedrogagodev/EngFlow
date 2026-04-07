@@ -1,0 +1,12 @@
+{
+  "event": {
+    "type": "message.part.delta",
+    "properties": {
+      "sessionID": "sess-fixture-3",
+      "part": {
+        "type": "text",
+        "text": "Streaming chunk"
+      }
+    }
+  }
+}

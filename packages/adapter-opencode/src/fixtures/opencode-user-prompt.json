@@ -1,0 +1,13 @@
+{
+  "event": {
+    "type": "message.part.updated",
+    "properties": {
+      "sessionID": "sess-fixture-1",
+      "messageID": "msg-fixture-1",
+      "part": {
+        "type": "text",
+        "text": "Please review this implementation."
+      }
+    }
+  }
+}

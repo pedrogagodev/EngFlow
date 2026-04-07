@@ -1,0 +1,12 @@
+{
+  "event": {
+    "type": "message.part.updated",
+    "properties": {
+      "sessionID": "sess-fixture-2",
+      "part": {
+        "type": "reasoning",
+        "text": "Internal chain-of-thought style content."
+      }
+    }
+  }
+}

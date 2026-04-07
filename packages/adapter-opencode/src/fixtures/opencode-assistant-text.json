@@ -1,0 +1,13 @@
+{
+  "event": {
+    "type": "message.part.updated",
+    "properties": {
+      "sessionID": "sess-fixture-4",
+      "part": {
+        "type": "text",
+        "role": "assistant",
+        "text": "Here is my answer."
+      }
+    }
+  }
+}
