@@ -9,6 +9,13 @@
         "typescript": "^5.7.0",
       },
     },
+    "packages/adapter-cursor": {
+      "name": "@engflow/adapter-cursor",
+      "version": "0.0.0",
+      "dependencies": {
+        "@engflow/contracts": "workspace:*",
+      },
+    },
     "packages/adapter-opencode": {
       "name": "@engflow/adapter-opencode",
       "version": "0.0.0",
@@ -41,6 +48,8 @@
     },
   },
   "packages": {
+    "@engflow/adapter-cursor": ["@engflow/adapter-cursor@workspace:packages/adapter-cursor"],
+
     "@engflow/adapter-opencode": ["@engflow/adapter-opencode@workspace:packages/adapter-opencode"],
 
     "@engflow/contracts": ["@engflow/contracts@workspace:packages/contracts"],

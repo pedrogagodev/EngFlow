@@ -1,0 +1,12 @@
+{
+  "conversation_id": "conv-123",
+  "generation_id": "gen-456",
+  "model": "default",
+  "composer_mode": "agent",
+  "prompt": "Quero melhorar este prompt",
+  "session_id": "sess-abc",
+  "hook_event_name": "beforeSubmitPrompt",
+  "cursor_version": "3.0.9",
+  "workspace_roots": ["/home/dev/EngFlow"],
+  "user_email": "user@example.com"
+}
