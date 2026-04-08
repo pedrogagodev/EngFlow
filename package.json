@@ -6,6 +6,7 @@
   "scripts": {
     "test": "bun test",
     "check": "bun test && bunx tsc --noEmit -p tsconfig.json",
+    "app": "bun widget/runtime/start-widget-stack.ts",
     "daemon": "bun run --cwd packages/daemon start",
     "daemon:dev": "bun run --cwd packages/daemon dev",
     "stack": "bun ./scripts/engflow-stack.ts"

@@ -5,7 +5,7 @@ import QtQuick.Layouts 1.15
 Rectangle {
     id: root
     width: 420
-    height: 370
+    height: 320
     radius: theme.radiusPanel
     color: theme.bgPanel
 
@@ -99,7 +99,7 @@ Rectangle {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 16
-        spacing: 12
+        spacing: 10
 
         RowLayout {
             Layout.fillWidth: true
@@ -203,55 +203,6 @@ Rectangle {
                     font.pixelSize: 12
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                }
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            height: 40
-            radius: theme.radiusTag
-            color: theme.bgSurface
-
-            RowLayout {
-                anchors.fill: parent
-                anchors.margins: 4
-                spacing: 6
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    radius: theme.radiusTag - 2
-                    color: "#0e0f11"
-                    border.color: Qt.rgba(root.stateColor().r, root.stateColor().g, root.stateColor().b, 0.5)
-                    border.width: 1
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Tips"
-                        color: theme.textPrimary
-                        font.pixelSize: 16
-                        font.weight: Font.DemiBold
-                        font.letterSpacing: -0.25
-                        font.family: "SF Pro Display, SF Pro Text, Helvetica Neue, Helvetica, Arial"
-                    }
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    radius: theme.radiusTag - 2
-                    color: "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: "Stats"
-                        color: theme.textMuted
-                        font.pixelSize: 16
-                        font.weight: Font.Normal
-                        font.letterSpacing: -0.25
-                        font.family: "SF Pro Display, SF Pro Text, Helvetica Neue, Helvetica, Arial"
-                    }
                 }
             }
         }

@@ -116,7 +116,7 @@ async function main(): Promise<void> {
   if (ui === "qs") {
     const shellQml = join(repoRoot, "widget/quickshell/shell.qml");
     const uiProc = Bun.spawn({
-      cmd: ["qs", "-p", shellQml, "--", ...commonQmlArgs],
+      cmd: ["qs", "-p", shellQml],
       cwd: repoRoot,
       stdout: "inherit",
       stderr: "inherit",
