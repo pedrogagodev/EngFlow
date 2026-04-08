@@ -9,7 +9,7 @@ export function sendNdjsonToSocket(
   socketPath: string,
   payload: NormalizedPromptEvent,
 ): void {
-  const line = `${JSON.stringify(payload)}\n`;
+  const line = `${JSON.stringify({ type: "prompt_event", payload })}\n`;
   const client = createConnection(socketPath);
 
   const onError = (): void => {
@@ -38,7 +38,7 @@ export function sendNdjsonToSocketAsync(
   payload: NormalizedPromptEvent,
 ): Promise<void> {
   return new Promise((resolve) => {
-    const line = `${JSON.stringify(payload)}\n`;
+    const line = `${JSON.stringify({ type: "prompt_event", payload })}\n`;
     const client = createConnection(socketPath);
     let done = false;
     const finish = (): void => {

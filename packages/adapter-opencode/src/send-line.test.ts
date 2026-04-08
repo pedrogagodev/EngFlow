@@ -70,6 +70,24 @@ describe("sendNdjsonToSocketAsync", () => {
 
     await new Promise<void>((resolve) => server.close(() => resolve()));
     expect(lines.length).toBe(1);
-    expect(JSON.parse(lines[0]!)).toEqual(payload);
+    expect(JSON.parse(lines[0]!)).toEqual({
+      type: "prompt_event",
+      payload,
+    });
+  });
+
+  test("resolves when socket path is unavailable", async () => {
+    const payload = {
+      event_type: "message.part.updated",
+      source: "opencode",
+      session_id: "s-test",
+      project_path: "/tmp",
+      prompt_text: "integration",
+      timestamp: "2026-04-06T12:00:00.000Z",
+    };
+
+    await expect(
+      sendNdjsonToSocketAsync(join(baseDir, "missing.sock"), payload),
+    ).resolves.toBeUndefined();
   });
 });
