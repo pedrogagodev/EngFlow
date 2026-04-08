@@ -1,6 +1,10 @@
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
-import type { NormalizedPromptEvent } from "@engflow/contracts";
+import type {
+  NormalizedPromptEvent,
+  PromptFeedback,
+  WidgetFeedbackEvent,
+} from "@engflow/contracts";
 import { resolveSocketPath } from "@engflow/contracts/socket-path";
 import { createDefaultCorrectionEngine } from "@engflow/correction";
 import { logStructured } from "./log.ts";
@@ -18,7 +22,36 @@ function classifyInvalid(error: unknown): { stage: string; detail: string } {
   return { stage: "unknown", detail: String(error) };
 }
 
-function runCorrectionPipeline(event: NormalizedPromptEvent): void {
+function mapPromptFeedbackToWidgetFeedback(
+  feedback: PromptFeedback,
+): WidgetFeedbackEvent {
+  return {
+    state: feedback.state,
+    display_text: `${feedback.fragment_before} -> ${feedback.fragment_after}`,
+    tip: feedback.tip,
+    category: feedback.category,
+    can_pin: true,
+    auto_open: feedback.state !== "correct",
+  };
+}
+
+function createFallbackWidgetFeedback(
+  event: NormalizedPromptEvent,
+): WidgetFeedbackEvent {
+  return {
+    state: "correct",
+    display_text: event.prompt_text,
+    tip: "Unable to analyze right now.",
+    category: "system",
+    can_pin: true,
+    auto_open: false,
+  };
+}
+
+function runCorrectionPipeline(
+  event: NormalizedPromptEvent,
+  onFeedback: (feedback: WidgetFeedbackEvent) => void,
+): void {
   logStructured("info", "correction_queued", {
     event_type: event.event_type,
     session_id: event.session_id,
@@ -34,11 +67,13 @@ function runCorrectionPipeline(event: NormalizedPromptEvent): void {
         category: feedback.category,
         tip_preview: feedback.tip.slice(0, 200),
       });
+      onFeedback(mapPromptFeedbackToWidgetFeedback(feedback));
     },
     (err: unknown) => {
       logStructured("error", "correction_unexpected_rejection", {
         detail: err instanceof Error ? err.message : String(err),
       });
+      onFeedback(createFallbackWidgetFeedback(event));
     },
   );
 }
@@ -50,7 +85,9 @@ async function main(): Promise<void> {
   const server = startNdjsonSocketServer({
     socketPath,
     onValid: (event) => {
-      runCorrectionPipeline(event);
+      runCorrectionPipeline(event, (widgetFeedback) => {
+        server.broadcastWidgetFeedback(widgetFeedback);
+      });
     },
     onInvalid: (error, line) => {
       const { stage, detail } = classifyInvalid(error);
